@@ -9,10 +9,10 @@ export default {
 	description: "Client on receive message event",
 	once: false,
 	function: async function (message: Message) {
-		if (config.debugMode && !config.developers.includes(message.author.id)) return;
+		if (config.debugMode && !config.devlopers.includes(message.author.id)) return;
 		if (message.channel.type !== ChannelType.GuildText) return;
 		
-		if (!config.whiteListedGuilds.includes(message.guildId)) return;
+		if (!config.whiteListedGuildes.includes(message.guildId)) return;
 
 		if (!config.prefix) return;
 		if (message.author.bot) return;

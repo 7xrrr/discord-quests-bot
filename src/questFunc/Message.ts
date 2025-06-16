@@ -179,7 +179,8 @@ export async function notification_message(quest: Quest): Promise<any> {
     .setFooter({ text: quest.config.application.name, iconURL: getQuestImage(quest.id, quest?.config?.assets?.logotype, false) })
     .setDescription(`## Rewards: \n${rewards}\n\n## Tasks:\n${tasks}`);
 
-  const image = `https://cdn.discordapp.com/quests/${quest.id}/${quest?.config?.assets?.hero}`;
+  const imageConfigUrl = quest?.config?.assets?.hero ? config.rewardImages[quest?.config?.assets?.hero] : null;
+  const image = imageConfigUrl ? imageConfigUrl : `https://cdn.discordapp.com/quests/${quest.id}/${quest?.config?.assets?.hero}`;
 
   const thumbnail = isVideo(`${quest?.config.rewards_config.rewards.find(d => d.asset)?.asset}`) ? await getUrlFromDatabase(quest.id, `${quest?.config.rewards_config.rewards.find(d => d.asset)?.asset}`, roundCurrent).catch((err) => null) : `https://cdn.discordapp.com/quests/${quest.id}/${quest?.config.rewards_config.rewards.find(d => d.asset)?.asset}`;
 
@@ -277,8 +278,15 @@ function generateButton(quest: SwitchQuestResult, started?: boolean): ButtonBuil
     emoji = getEmojiFromClient(client, "completed", false) || "✅";
     style = ButtonStyle.Secondary;
     disabled = true;
-  } else if (enrolled) {
-    if (supported) {
+  }
+  else if(!supported) {
+    customId = "notsupported";
+    label = "Not Supported";
+    emoji = getEmojiFromClient(client, "notsupported", false) || "❌";
+    style = ButtonStyle.Secondary;
+    disabled = true;
+  }
+  else if (enrolled) {
       if (started) {
         customId = "stop";
         label = "Stop";
@@ -290,13 +298,7 @@ function generateButton(quest: SwitchQuestResult, started?: boolean): ButtonBuil
         emoji = getEmojiFromClient(client, "start", false) || "▶️";
         style = ButtonStyle.Secondary;
       }
-    } else {
-      customId = "notsupported";
-      label = "Not Supported";
-      emoji = getEmojiFromClient(client, "notsupported", false) || "❌";
-      style = ButtonStyle.Secondary;
-    }
-  } else {
+  } else if(!enrolled && supported) {
     customId = "enroll";
     label = "Enroll";
     emoji = getEmojiFromClient(client, "enroll", false) || "➕";

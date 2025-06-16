@@ -14,8 +14,8 @@ export default {
     name: "interactionCreate",
     once: false,
     function: async function (interaction: ContextMenuCommandInteraction) {
-        if (!config.whiteListedGuilds.includes(interaction?.guildId)) return;
-        if (config.debugMode && !config.developers.includes(interaction.user.id)) return;
+        if (!config.whiteListedGuildes.includes(interaction?.guildId)) return;
+        if (config.debugMode && !config.devlopers.includes(interaction.user.id)) return;
         if (!interaction.isContextMenuCommand()) return;
 
         const command = client.contextMenus.get(interaction.commandName) as ContextMenuCommand;

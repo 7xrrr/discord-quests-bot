@@ -9,28 +9,29 @@ import { getQuestProgressInforamtion } from "../questFunc/switchQuests.js";
 export default {
     name: "watch_video_v1",
     filterKey: (quest: Quest) => {
-        return ["WATCH_VIDEO"].find(x => quest?.config?.task_config?.tasks[x] !== null);
+        return ["WATCH_VIDEO_ON_MOBILE"].find(x => quest?.config?.task_config?.tasks[x] !== null) ? true : false;
     },
-    
+
     config: (quest: Quest) => ({
         quest_name: quest.config?.messages?.quest_name,
         game: quest?.config?.messages?.game_title,
         game_id: quest?.config.application.id,
         game_name: quest?.config.application.name,
+
     }),
 
     requireStream: false,
     requireLogin: false,
     requireVoiceChannel: false,
     run: async (client: Client, axios: AxiosInstance, quest: Quest, QuestSolver: QuestSolver) => {
-        const taskName = "WATCH_VIDEO"
+        const taskName = "WATCH_VIDEO_ON_MOBILE"
         const secondsNeeded = QuestSolver.questConfig.secondsNeeded;
         let progress = getQuestProgressInforamtion(quest, taskName)?.secondsDone || 0;
         let stoped = false;
-        const startDate = (Date.now()-(progress*1000))/1000;
+        const startDate = (Date.now() - (progress * 1000)) / 1000;
         QuestSolver.on("stop", () => {
             stoped = true;
-            
+
         })
         while (!stoped) {
             const heartbeat = await axios.post(`quests/${quest.id}/video-progress`, {
@@ -42,8 +43,8 @@ export default {
                 break;
             }
             const response = heartbeat?.data;
-            progress =  Math.floor(response?.progress[`${taskName}`]?.value || 0);
-            QuestSolver.emit("progress", { progress, target: secondsNeeded,task: taskName,response:response });
+            progress = Math.floor(response?.progress[`${taskName}`]?.value || 0);
+            QuestSolver.emit("progress", { progress, target: secondsNeeded, task: taskName, response: response });
             if (progress >= secondsNeeded || response?.progress[`${taskName}`]?.completed_at != null) {
                 QuestSolver.stop("Quest completed");
                 break;

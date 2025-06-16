@@ -15,7 +15,7 @@ export default {
     name: "interactionCreate",
     once: false,
     function: async function (interaction: ModalSubmitInteraction) {
-        if (!config.whiteListedGuilds.includes(interaction?.guildId)) return;
+        if (!config.whiteListedGuildes.includes(interaction?.guildId)) return;
         if (!interaction.isModalSubmit()) return;
 
         const modal = client.modals.get(interaction.customId) as Modal

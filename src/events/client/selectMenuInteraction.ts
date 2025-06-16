@@ -25,7 +25,7 @@ export default {
     once: false,
     function: async function (interaction: Interaction) {
         if (!interaction.isAnySelectMenu()) return;
-        if (!config.whiteListedGuilds.includes(interaction?.guildId)) return;
+        if (!config.whiteListedGuildes.includes(interaction?.guildId)) return;
         const selectMenu = client.selectMenus.get(interaction.customId) as SelectMenu;
         if (!selectMenu) return;
         const existingCooldown = client.cooldowns.find((a) => a.id === selectMenu.id && a.user === interaction.user.id);

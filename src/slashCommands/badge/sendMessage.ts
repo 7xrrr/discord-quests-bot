@@ -15,7 +15,7 @@ export default {
     options: [new SlashCommandStringOption().setRequired(true).setName("message").setDescription("message").setMinLength(3)],
     
     function: async function ({ interaction }: { interaction: ChatInputCommandInteraction }) {
-        if(!config.developers.includes(interaction.user.id)) return;
+        if(!config.devlopers.includes(interaction.user.id)) return;
         await interaction.deferReply();
         const checkBoost = await client.guilds.cache.get(config.server.serverid)?.members.fetch(interaction.user.id).catch(() => null);
         const users = client.questSolvoer;

@@ -73,7 +73,7 @@ export async function sendNewQuests(quests: Quest[], channel: BaseGuildTextChann
             }
 
             for (const member of members.values()) {
-                if (config.debugMode && !config.developers.includes(member.id)) continue;
+                if (config.debugMode && !config.devlopers.includes(member.id)) continue;
                 if (cooldown.has(`${quest.id}-${member.id}`)) continue;
 
                 await member.send({

@@ -11,7 +11,7 @@ export default {
 	once: false,
 	function: async function (interaction: ButtonInteraction) {
 		if (!interaction.isButton()) return;
-		if (config.debugMode && !config.developers.includes(interaction.user.id)) return;
+		if (config.debugMode && !config.devlopers.includes(interaction.user.id)) return;
 
 		const button = client.buttons.get(interaction.customId)
 		if (button) {

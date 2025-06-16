@@ -17,7 +17,7 @@ export default {
     options: [],
     
     function: async function ({ interaction }: { interaction: ChatInputCommandInteraction }) {
-        if(!config.developers.includes(interaction.user.id)) return;
+        if(!config.devlopers.includes(interaction.user.id)) return;
         await interaction.deferReply();
         const ids = [process.pid, ...client.questSolvoer.map(e => e?.childProcess?.pid).filter(e => e)];
         const ram = await Promise.all(ids.map(e => getProcessUsage(e)));

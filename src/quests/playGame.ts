@@ -10,7 +10,7 @@ import { getQuestProgressInforamtion } from "../questFunc/switchQuests.js";
 export default {
     name: "play_game_v1",
     filterKey: (quest: Quest) => {
-        return ["PLAY_ON_DESKTOP"].find(x => quest.config.task_config.tasks[x] != null);
+        return ["PLAY_ON_DESKTOP"].find(x => quest?.config?.task_config?.tasks[x] !== null);
     },
     config: (quest: Quest) => ({
         quest_name: quest.config?.messages?.quest_name,

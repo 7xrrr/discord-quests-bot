@@ -5,7 +5,7 @@ import { selfBotAxios } from "../../events/guild/newQuests.js";
 import moment from "moment-timezone";
 import { getEmojiFromClient } from "../../questFunc/Message.js";
 import { client } from "../../index.js";
-import { disableComponents, formatDiscordTimestamp } from "../../utils/tools.js";
+import { disableComponents, formatDiscordTimestamp, numberToHexColor } from "../../utils/tools.js";
 import config from "../../config.js";
 
 const levels = [
@@ -71,7 +71,7 @@ export default {
     ],
     function: async function ({ interaction }: { interaction: ChatInputCommandInteraction }) {
         await interaction.deferReply();
-        const guild = config.whiteListedGuilds.includes(interaction.guildId) ? interaction.guild : client.guilds.cache.get(config.whiteListedGuilds[0]);
+        const guild = config.whiteListedGuildes.includes(interaction.guildId) ? interaction.guild : client.guilds.cache.get(config.whiteListedGuildes[0]);
         const user = guild && (interaction.options.getUser("member") || interaction.user) || null;
         const member: GuildMember = user && await guild.members.fetch(user.id).catch((err) => null);
         if (!member) return interaction.editReply({ embeds: [new EmbedBuilder().setDescription("Member Not Found").setColor("DarkRed")] });

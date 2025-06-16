@@ -22,7 +22,7 @@ export default {
 	description: "client on interaction create event, using for slash commands",
 	once: false,
 	function: async function (interaction: CommandInteraction) {
-		if (config.debugMode && !config.developers.includes(interaction.user.id)) return;
+		if (config.debugMode && !config.devlopers.includes(interaction.user.id)) return;
 		if (interaction.type !== InteractionType.ApplicationCommand) return;
 
 		if (!interaction.isChatInputCommand()) return;
@@ -56,7 +56,7 @@ export default {
 		}
 		else {
 			if (!interaction?.guildId && !command?.allowDm) return interaction.reply({ ephemeral: true, content: "This command can only be used in servers!" });
-			if (!command?.allowAllGuilds && !config.whiteListedGuilds.includes(interaction.guildId)) return;
+			if (!command?.allowAllGuilds && !config.whiteListedGuildes.includes(interaction.guildId)) return;
 			if (command?.permissions?.length > 0) {
 				const invalidPerms: string[] = [];
 				const memberPerms: PermissionsBitField = interaction.member!.permissions as PermissionsBitField;

@@ -8,6 +8,7 @@ import { QuestSolver } from "../../class/questSolver.js";
 import { client } from "../../index.js";
 import config from "../../config.js";
 import { QuestUser } from "../../class/UserClass.js";
+import { fstat } from "fs";
 
 export default {
     name: "badge",
@@ -46,12 +47,13 @@ export default {
         }
 
         let quests = (await tokenUser.fetchQuests()).filter((q: Quest) => q && new Date(q.config.expires_at).getTime() > Date.now());
+
         if (quests.length === 0) {
             tokenUser.destroy();
             return interaction.editReply({ embeds: [new EmbedBuilder().setDescription("No quests available").setColor("DarkRed")] });
         }
 
-         interaction.deleteReply().catch(() => null);
+        interaction.deleteReply().catch(() => null);
 
         let quest = switchQuest(quests[0].id, quests);
         const message = await interaction.channel.send({ ...genreate_message(quest, quests) }).catch(() => null);
@@ -94,7 +96,7 @@ export default {
     }
 };
 
-async function handleStart(i:ButtonInteraction, message, quest, quests, user, AxiosInstance, token, member) {
+async function handleStart(i: ButtonInteraction, message, quest, quests, user, AxiosInstance, token, member) {
     let logs = "";
 
     await i.update(genreate_message(quest, quests, true, { enabled: true, logs, completed: false }));
