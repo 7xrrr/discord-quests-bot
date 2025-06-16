@@ -25,9 +25,8 @@ export function getQuestProgressInforamtion(quest: Quest, customTaskName?: strin
 
 
 
-
   const support = client.questsConfig.find(o => o.filterKey(quest) !== undefined) || null;
-  console.log(support)
+
   const taskName = customTaskName || config.quests.find(x => quest.config.task_config.tasks[x] != null)
   const secondsNeeded = quest.config?.task_config?.tasks[taskName]?.target;
   if(!secondsNeeded) return
@@ -54,8 +53,9 @@ export function getQuestProgressInforamtion(quest: Quest, customTaskName?: strin
 export function switchQuest(newQuestId, quests, customTaskName?: string): SwitchQuestResult {
 
   const quest: Quest = quests.find((q: Quest) => q.id === newQuestId);
-  const support = client.questsConfig.find(o => o.filterKey(quest) !== undefined) || null;
-  console.log(support)
+
+  const support = client.questsConfig.find(o => o.filterKey(quest) === true) || null;
+
 
   const taskName = customTaskName || config.quests.find(x => quest.config.task_config.tasks[x] != null)
   const secondsNeeded = quest.config.task_config.tasks[taskName].target;

@@ -7,9 +7,10 @@ import ms from "ms";
 import { delay } from "../utils/tools.js";
 import { getQuestProgressInforamtion } from "../questFunc/switchQuests.js";
 export default {
-    name: "watch_video_v1",
+    name: "WATCH_VIDEO_ON_MOBILE",
+
     filterKey: (quest: Quest) => {
-        return ["WATCH_VIDEO_ON_MOBILE"].find(x => quest?.config?.task_config?.tasks[x] !== null) ? true : false;
+        return ["WATCH_VIDEO_ON_MOBILE"].some(x => quest?.config?.task_config?.tasks[x] != null) ? true : false;
     },
 
     config: (quest: Quest) => ({

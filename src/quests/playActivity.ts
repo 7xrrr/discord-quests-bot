@@ -9,9 +9,9 @@ import { delay } from "../utils/tools.js";
 import { getQuestProgressInforamtion } from "../questFunc/switchQuests.js";
 import config from "../config.js";
 export default {
-    name: "play_game_v1",
+    name: "PLAY_ACTIVITY",
     filterKey: (quest: Quest) => {
-        return ["PLAY_ACTIVITY"].find(x => quest?.config?.task_config?.tasks[x] !== null);
+        return ["PLAY_ACTIVITY"].some(x => quest?.config?.task_config?.tasks[x] != null) ? true : false;
     },
     config: (quest: Quest) => ({
         quest_name: quest.config?.messages?.quest_name,

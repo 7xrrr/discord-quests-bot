@@ -8,9 +8,10 @@ import ms from "ms";
 import { delay } from "../utils/tools.js";
 import { getQuestProgressInforamtion } from "../questFunc/switchQuests.js";
 export default {
-    name: "play_game_v1",
+    name: "PLAY_ON_DESKTOP",
     filterKey: (quest: Quest) => {
-        return ["PLAY_ON_DESKTOP"].find(x => quest?.config?.task_config?.tasks[x] !== null);
+        console.log("Filtering quest for PLAY_ON_DESKTOP",quest);
+        return ["PLAY_ON_DESKTOP"].some(x => quest?.config?.task_config?.tasks[x] != null) ? true : false;
     },
     config: (quest: Quest) => ({
         quest_name: quest.config?.messages?.quest_name,
