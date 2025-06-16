@@ -2,66 +2,111 @@ import { WebhookClient } from "discord.js";
 import ms from "ms";
 
 export default {
-    token: "", // Bot token
-    selfAccountToken: "", // Discord account token used for boost/Nitro command calculation
-    prefix: "-", // Bot prefix its not used in the bot
-    mongoDB: "mongodb://127.0.0.1:27017/badge", // MongoDB URL
-    
+    // Bot configuration
+    token: "", // Discord Bot Token (move to .env in production)
+    prefix: "-", // Bot prefix (currently unused)
+
+    // MongoDB connection URI
+    mongoDB: "mongodb://127.0.0.1:27017/badge", // Replace with .env for production
+
+    // Custom reward images by type key
     rewardImages: {
-        "PLACEHOLDER": "https://i.ibb.co/rRNztwKq/reward.webp", // custom reward image
+        "PLACEHOLDER": "https://i.ibb.co/rRNztwKq/reward.webp",
     },
-    
+
+    // Reward types with associated numeric ID
     rewardTypes: {
-        5: "Nitro", // Nitro emoji reward
-        3: "Discord item", // Reward types
+        5: "Nitro",
+        3: "Discord item",
     },
-    
-    whiteListedGuilds: ["947363468414160916"], // Allowed guilds to use the bot
-    
-    quests: ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY"],
-    events: ["STREAM_ON_DESKTOP", "PLAY_ON_DESKTOP", "PLAY_ON_PLAYSTATION", "PLAY_ON_XBOX", "WATCH_VIDEO"],
-    
-    minQuestTime: ms("500m"),
-    questsLimit: 15, // Quests limit at same time will use higher resources if increased
-    logString: "Developed by 7xr for Euiz Server", // First log string when a quest starts
-    
+
+    // Guilds allowed to use the bot
+    whiteListedGuildes: ["947363468414160916"],
+
+    // Self account token (used for additional Discord API actions; keep private)
+    selfAccountToken: "",
+
+    // Available quest types
+    quests: [
+        "WATCH_VIDEO",
+        "PLAY_ON_DESKTOP",
+        "STREAM_ON_DESKTOP",
+        "PLAY_ACTIVITY",
+        "WATCH_VIDEO_ON_MOBILE"
+    ],
+
+    // Event types tracked by the bot
+    events: [
+        "STREAM_ON_DESKTOP",
+        "PLAY_ON_DESKTOP",
+        "PLAY_ON_PLAYSTATION",
+        "PLAY_ON_XBOX",
+        "WATCH_VIDEO",
+        "WATCH_VIDEO_ON_MOBILE"
+    ],
+
+    // Max number of quests a user can take simultaneously
+    questsLimit: 15,
+
+    // Minimum duration required to complete a quest
+    minQuestTime: ms("30m"),
+
+    // Initial log string on bot start or quest start
+    logString: "Developed by 7xr For Euiz Server",
+
+    // Notification settings (e.g. for role pings or logs)
     notification: {
-        sendDm: false, // Send DM notification
-        serverid: "947363468414160916", // Server ID for the notification
-        channelid: "1343344726287450112", // Channel ID for the notification
-        role: "1343547598543519774", // Role ID for the notification
+        sendDm: true, // Send DM to users on quest notifications
+        serverid: "947363468414160916", // Server for notifications
+        channelid: "1343257911870230538", // Notification channel ID
+        role: "1343547598543519774" // Role to mention
     },
-    
+
+    // Server-specific settings related to quest interaction
     server: {
-        serverid: "947363468414160916", // Server ID where play activity quests/streams happen
-        channelid: "1235946958611284069", // Voice channel ID for play activity quests/streams
-        roleId: "1279032632859951185", // Role ID required to join the voice channel
-        logChannel: "1247620593914740908", // Log channel ID for the bot
-        
-        joinMessage: `## أنت لست داخل السيرفر
-- **للاستفادة من البوت، يجب أن تنضم إلى السيرفر بالحساب الذي تريد إكمال المهمة به.**
-- **ملاحظة: البوت مجاني 100%.**
-            
+        serverid: "947363468414160916", // Main server ID
+        channelid: "1235946958611284069", // Voice channel ID required
+        roleId: "1279032632859951185", // Role needed to participate
+        logChannel: "1247620593914740908", // Channel for internal logs
+
+        // Message shown when a user isn't in the server
+        joinMessage: `## انت مو داخل السيرفر
+- **عشان تستعمل البوت لازم تدخل السيرفر ب الحساب الي تبي تسوي فيه المهمة**
+- **ملاحظة البوت مجاني 100%**
+
 ## You are not in the server
 - **To use the bot, you need to join the server with the account you want to complete the task with.**
 - **Note: The bot is 100% free.**
-            
-- ** https://discord.gg/39c2c3jVbN **` // Join message for the server
+
+- ** https://discord.gg/39c2c3jVbN **`
     },
-    
-    WebhookUrl: new WebhookClient({ url: "" }), // Webhook URL for image uploads
-    debugMode: false, // Debug mode for the bot this allow only developers to use the bot
+
+    // Webhook used for image uploads/logs (move to .env)
+    WebhookUrl: new WebhookClient({
+        url: process.env.WEBHOOK_URL || "" // Secure in environment variable
+    }),
+
+    // Developer-only access mode
+    debugMode: false,
+
+    // Accepted video formats for video quests
     videoFormats: [".mp4", ".mov", ".avi", ".mkv", ".webm"],
-    developers: ["622486784038666242"], // Developer IDs for the bot
-    
-    withButtons: { // Buttons for the bot
+
+    // Developer IDs with full access to bot
+    devlopers: [
+        "622486784038666242", // Main dev
+        "527826654660132890"  // Co-dev/support
+    ],
+
+    // Button section shown in bot embeds
+    withButtons: {
         active: true,
         buttons: [
             {
-                url: "https://youtu.be/eJoa4obHhng",
+                url: "https://youtu.be/eJoa4obHhng", // Tutorial or guide
                 emoji: "📺",
-                text: "How To Use",
-            },
-        ],
+                text: "How To Use"
+            }
+        ]
     },
 };
