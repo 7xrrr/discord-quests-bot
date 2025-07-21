@@ -64,3 +64,15 @@ For any issues or further assistance, feel free to reach out to the support team
 ## Support & Demo Server
 You can test the bot and get support in our official server: [Join Here](https://discord.gg/4WStuuHj39)
 
+---
+
+## 🎨 Screenshots
+
+![image1](https://i.ibb.co/3JgHfFy/image.png)
+![image2](https://i.ibb.co/HTn49GG/image.png)
+![image3](https://i.ibb.co/chPF7zJ/image.png)
+![image4](https://i.ibb.co/yFSZtRmk/image.png)
+![image5](https://i.ibb.co/TqJZpqgT/image.png)
+![image6](https://i.ibb.co/4g01Rc8/image.png)
+
+---
