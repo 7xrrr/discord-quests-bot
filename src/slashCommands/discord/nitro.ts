@@ -1,11 +1,11 @@
 
-import { ActionRowBuilder, ChatInputCommandInteraction, Colors, EmbedBuilder, GuildMember, InteractionContextType, InteractionReplyOptions, SlashCommandUserOption, StringSelectMenuBuilder, User } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, EmbedBuilder, GuildMember, InteractionContextType, InteractionReplyOptions, SlashCommandUserOption, StringSelectMenuBuilder, User } from "discord.js";
 import ms from "ms";
 import { selfBotAxios } from "../../events/guild/newQuests.js";
 import moment from "moment-timezone";
 import { getEmojiFromClient } from "../../questFunc/Message.js";
 import { client } from "../../index.js";
-import { disableComponents, formatDiscordTimestamp, numberToHexColor, uppercaseFirstLetter } from "../../utils/tools.js";
+import { disableComponents, formatDiscordTimestamp, uppercaseFirstLetter } from "../../utils/tools.js";
 import config from "../../config.js";
 
 const levels = [

@@ -3,8 +3,6 @@ import path from "path";
 import { client } from "../index.js";
 import { fileURLToPath } from 'url';
 import { convertURLs } from "../utils/windowsUrlConvertor.js";
-import { loadEmojis } from "../utils/loadEmoji.js";
-import { loadQuests } from "../utils/loadQuests.js";
 
 export default {
 	/**

@@ -20,7 +20,7 @@ export async function sendNewQuests(quests: Quest[], channel: BaseGuildTextChann
 
         const checkData = await questsNotifcationShema.findOne({ questID: quest.id });
         if (checkData) {
-            console.log("Quest already sent");
+           
             client.newQuests.set(quest.id, true);
             continue;
         }

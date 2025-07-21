@@ -47,7 +47,7 @@ export class QuestSolver extends EventEmitter {
     private async startChildProcess() {
         const filePath = path.join(root,"childProcess","childProcess.js");
         
-       console.log(filePath)
+
         const child = fork(filePath, [JSON.stringify({
             questConfig: this.questConfig,
             quest: this.quest,

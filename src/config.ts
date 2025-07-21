@@ -12,14 +12,20 @@ export default {
     // Custom reward images by type key
     rewardImages: {
         "PLACEHOLDER": "https://i.ibb.co/rRNztwKq/reward.webp",
-    },
+        "1287881739531976815": "https://i.ibb.co/vxTHNqsS/eff35518172b971fa47c521ca21c7576d3a245433a669a6765f63b744b7b733a.png"
 
-    // Reward types with associated numeric ID
+    },
+    // Custom emojis by ID
+    customEmojis: {
+        "1287881739531976815": "orbIcon"
+
+    },
+    // Reward types with their IDs and names
     rewardTypes: {
         5: "Nitro",
-        3: "Discord item",
+        3: "Discord Decorations",
+        4: "Discord Orb",
     },
-
     // Guilds allowed to use the bot
     whiteListedGuildes: ["947363468414160916"],
 

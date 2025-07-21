@@ -23,6 +23,9 @@ importers:
       colors:
         specifier: ^1.4.0
         version: 1.4.0
+      discord-api-types:
+        specifier: ^0.38.16
+        version: 0.38.16
       discord.js:
         specifier: ^14.18.0
         version: 14.18.0
@@ -41,6 +44,9 @@ importers:
       mongoose:
         specifier: ^8.10.1
         version: 8.10.1
+      ms:
+        specifier: ^2.1.3
+        version: 2.1.3
       node-schedule:
         specifier: ^2.1.1
         version: 2.1.1
@@ -493,6 +499,9 @@ packages:
 
   discord-api-types@0.37.119:
     resolution: {integrity: sha512-WasbGFXEB+VQWXlo6IpW3oUv73Yuau1Ig4AZF/m13tXcTKnMpc/mHjpztIlz4+BM9FG9BHQkEXiPto3bKduQUg==}
+
+  discord-api-types@0.38.16:
+    resolution: {integrity: sha512-Cz42dC5WqJD17Yk0bRy7YLTJmh3NKo4FGpxZuA8MHqT0RPxKSrll5YhlODZ2z5DiEV/gpHMeTSrTFTWpSXjT1Q==}
 
   discord.js-selfbot-v13@3.6.0:
     resolution: {integrity: sha512-gGb18FblMt2e2pwhKMSLKqDLPw2yG3IbTNoZJKeMV9hJCivjn8gcqfhwhRbSHq0DNfDrKLjvCWY08/X8rIWnEA==}
@@ -1691,6 +1700,8 @@ snapshots:
   dijkstrajs@1.0.3: {}
 
   discord-api-types@0.37.119: {}
+
+  discord-api-types@0.38.16: {}
 
   discord.js-selfbot-v13@3.6.0(@discordjs/opus@0.9.0)(opusscript@0.1.1):
     dependencies:

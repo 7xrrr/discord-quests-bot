@@ -20,7 +20,7 @@ export class CustomClient extends Client {
     contextMenus: Collection<String, any> = new Collection();
     buttons: Collection<String, any> = new Collection();
     questsConfig: Collection<String, QuestConfig> = new Collection();
-    questSolvoer: Collection<String, QuestSolver> = new Collection();
+    questSolvoer: Collection<String, any> = new Collection();
     images: Collection<String, questImagesInterface> = new Collection();
 
 
@@ -69,7 +69,6 @@ import mongoose from "mongoose";
 import { QuestConfig } from "./interface/questConfig.js";
 import { loadQuests } from "./utils/loadQuests.js";
 import { questImagesInterface } from "./models/images.js";
-import { QuestSolver } from "./class/questSolver.js";
 
 await idkHowToCallThisHandler.init();
 eventHandler.function();

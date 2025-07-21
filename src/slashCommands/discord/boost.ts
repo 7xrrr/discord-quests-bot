@@ -5,7 +5,7 @@ import { selfBotAxios } from "../../events/guild/newQuests.js";
 import moment from "moment-timezone";
 import { getEmojiFromClient } from "../../questFunc/Message.js";
 import { client } from "../../index.js";
-import { disableComponents, formatDiscordTimestamp, numberToHexColor } from "../../utils/tools.js";
+import { disableComponents, formatDiscordTimestamp } from "../../utils/tools.js";
 import config from "../../config.js";
 
 const levels = [

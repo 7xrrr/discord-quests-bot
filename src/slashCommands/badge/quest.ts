@@ -8,7 +8,6 @@ import { QuestSolver } from "../../class/questSolver.js";
 import { client } from "../../index.js";
 import config from "../../config.js";
 import { QuestUser } from "../../class/UserClass.js";
-import { fstat } from "fs";
 
 export default {
     name: "badge",
@@ -47,6 +46,7 @@ export default {
         }
 
         let quests = (await tokenUser.fetchQuests()).filter((q: Quest) => q && new Date(q.config.expires_at).getTime() > Date.now());
+  
 
         if (quests.length === 0) {
             tokenUser.destroy();

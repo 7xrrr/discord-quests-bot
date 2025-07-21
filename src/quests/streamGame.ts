@@ -45,7 +45,7 @@ export default {
             }
             if (!heartbeat?.data?.user_id) {
                 QuestSolver.stop("Error sending heartbeat");
-                console.log(heartbeat);
+                
                 break;
             }
 

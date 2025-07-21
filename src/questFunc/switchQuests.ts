@@ -29,7 +29,7 @@ export function getQuestProgressInforamtion(quest: Quest, customTaskName?: strin
 
   const taskName = customTaskName || config.quests.find(x => quest.config.task_config.tasks[x] != null)
   const secondsNeeded = quest.config?.task_config?.tasks[taskName]?.target;
-  if(!secondsNeeded) return
+  if (!secondsNeeded) return
   const secondsDone = quest.user_status?.progress?.[taskName]?.value ?? 0;
   const enrolled = quest?.user_status?.enrolled_at ? true : false;
   const completed = secondsDone >= secondsNeeded || quest?.user_status?.completed_at != null;
@@ -81,16 +81,19 @@ export function switchQuest(newQuestId, quests, customTaskName?: string): Switch
 export function formatRewards(quest: Quest, client: CustomClient): string {
   const rewards = quest.config.rewards_config.rewards.map((reward) => {
     let rewardText = reward.messages.name;
-    if(reward.type === 3 && [1,3].includes(reward.expiration_mode)) {
-      rewardText += ` For ${moment(reward.expires_at).diff(moment(),"months")} months`;
-      
+    if (reward.type === 4) {
+      const emoji = getEmojiFromClient(client,"orbIcon",true)
+      rewardText = `${reward.messages.name_with_article} ${emoji}`;
+    }
+    else if (reward.type === 3 && [1, 3].includes(reward.expiration_mode)) {
+      rewardText += ` For ${moment(reward.expires_at).diff(moment(), "months")} months`;
     }
     if (reward.type === 3) {
-      const emoji = getEmojiFromClient(client,"discord",true);
+      const emoji = getEmojiFromClient(client, "discord", true);
       rewardText += ` ${emoji || ""}`;
     }
-    else if(reward.type === 5) {
-      const emoji = getEmojiFromClient(client,"nitro_level_stone",true);
+    else if (reward.type === 5) {
+      const emoji = getEmojiFromClient(client, "nitro_level_stone", true);
       rewardText += ` ${emoji || ""}`;
 
     }
@@ -107,8 +110,8 @@ export function formatProgress_2(quest: Quest, client: CustomClient): string {
     const current = quest.user_status?.progress[taskKey]?.value || 0;
 
 
-    const timeCurrent = target < 60 || current< 60 ? `${current}` : moment.duration(current, "seconds").minutes();
-    const timeRequired = target < 60 || current< 60? `${target}` : moment.duration(target, "seconds").minutes();
+    const timeCurrent = target < 60 || current < 60 ? `${current}` : moment.duration(current, "seconds").minutes();
+    const timeRequired = target < 60 || current < 60 ? `${target}` : moment.duration(target, "seconds").minutes();
     const timeFormat = target < 60 || current < 60 ? "seconds" : "minutes";
 
     const emoji = getEmoji(client, taskKey);
@@ -137,6 +140,8 @@ export function formatTasks(quest: Quest, client: CustomClient): string {
     const task = quest.config.task_config.tasks[taskKey];
     const target = task.target;
     const name = task.event_name;
+    
+
 
 
     const formattedName = name
@@ -148,7 +153,7 @@ export function formatTasks(quest: Quest, client: CustomClient): string {
     const taskDescription = config.events.includes(
       taskKey
     )
-      ? `For ${requiredTime.replace("in ","").trim()}`
+      ? `For ${requiredTime.replace("in ", "").trim()}`
       : task.title || task.description || `${target}`;
 
 
@@ -159,24 +164,25 @@ export function formatTasks(quest: Quest, client: CustomClient): string {
 
   return `**${tasks.join("\n")}**`;
 }
-export function getQuestImage(questID: string, imageName: string,round:boolean): string {
-  const imageConfigUrl = config.rewardImages[imageName];
-  if(imageConfigUrl) return imageConfigUrl
-  
-  const url = `https://cdn.discordapp.com/quests/${questID}/${imageName}`;
+export function getQuestImage(questID: string, imageName: string, round: boolean): string {
+  const imageConfigUrl = imageName && config?.rewardImages?.[imageName];
+  if (imageConfigUrl) return imageConfigUrl
 
+  const url = `https://cdn.discordapp.com/quests/${questID}/${imageName}`;
+ 
+  
   if (config.videoFormats.find(e => url.toLowerCase().endsWith(url.toLowerCase().trim()))) {
-    const imageUrl = checkCacheForImage(questID, imageName,round);
+    const imageUrl = checkCacheForImage(questID, imageName, round);
     return imageUrl || url;
   }
   else return url
 }
-function checkCacheForImage(questID: string, imageName: string,round:boolean) {
+function checkCacheForImage(questID: string, imageName: string, round: boolean) {
   const imageKey = `${questID}-${imageName.split(".")[0]}`;
   let questImage = client.images.get(imageKey);
   const isExpired = questImage && decodeTimestampFromUrl(questImage.link) < Date.now();
   if (!questImage || isExpired) {
-    getUrlFromDatabase(questID, imageName,round);
+    getUrlFromDatabase(questID, imageName, round);
     return null
   }
   else return questImage?.link;
@@ -184,11 +190,17 @@ function checkCacheForImage(questID: string, imageName: string,round:boolean) {
 }
 
 
+export function getRewardImage(quest: SwitchQuestResult, imageName: string, round: boolean,useAlts:boolean=false): string {
+  const reward_id = quest?.quest?.config?.rewards_config?.rewards.find(e => e.sku_id)?.sku_id;
+  const altImage = useAlts && config?.rewardImages && Object.keys(config.rewardImages).length > 0 && config.rewardImages[reward_id] 
 
+  if(useAlts && altImage) return altImage
+  else return getQuestImage(quest.questId, imageName, round);
+}
+ 
+export async function getUrlFromDatabase(questID: string, imageName: string, round: boolean) {
 
-export async function getUrlFromDatabase(questID: string, imageName: string,round:boolean) {
-
-  const imageKey = `${questID}-${imageName.split(".")[0]}`;
+  const imageKey = `${questID}-${imageName?.split(".")[0]}`;
   let questImage = client.images.get(imageKey);
   const isExpired = questImage && decodeTimestampFromUrl(questImage.link) < Date.now();
 
@@ -210,7 +222,7 @@ export async function getUrlFromDatabase(questID: string, imageName: string,roun
 
 
 
-    const buffer = await extractFirstFrame(response?.data, 512,round,).catch((err) => null);
+    const buffer = await extractFirstFrame(response?.data, 512, imageKey, round).catch((err) => null);
     if (!buffer) return null;
     const attachment = new AttachmentBuilder(buffer).setName(`${imageName.split(".")[0]}.png`);
     const newMessage = await config.WebhookUrl.send({ files: [attachment] });

@@ -1,5 +1,4 @@
 import { AxiosInstance } from "axios";
-import { Quest } from "../interface/quest.js";
 import { ClientUser } from "discord.js-selfbot-v13";
 
 

@@ -1,5 +1,5 @@
 import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder } from "discord.js";
-import { formatProgress_2, formatRewards, formatTasks, getQuestImage, getUrlFromDatabase, SwitchQuestResult } from "./switchQuests.js";
+import { formatProgress_2, formatRewards, formatTasks, getQuestImage, getRewardImage, getUrlFromDatabase, SwitchQuestResult } from "./switchQuests.js";
 import { Quest } from "../interface/quest.js";
 import { formatDiscordTimestamp } from "../utils/tools.js";
 import moment from "moment-timezone";
@@ -65,10 +65,10 @@ export function genreate_message(quest: SwitchQuestResult, quests: Quest[], star
       },)
 
     .setColor(`#${quest.quest.config.colors.primary.replace("#", "")}`)
-    .setImage(getQuestImage(quest.questId, quest?.quest?.config?.assets?.hero, round))
-    .setThumbnail(getQuestImage(quest.questId, quest?.quest?.config.rewards_config.rewards.find(d => d.asset)?.asset, round))
+    .setImage(getRewardImage(quest, quest?.quest?.config?.assets?.hero, round))
+    .setThumbnail(getRewardImage(quest, quest?.quest?.config?.rewards_config.rewards.find(d => d.asset)?.asset, round, true))
     .setTimestamp(moment(quest.quest.config.starts_at).toDate())
-    .setFooter({ text: quest.quest.config.application.name, iconURL: getQuestImage(quest.questId, quest?.quest?.config?.assets?.logotype, false) })
+    .setFooter({ text: quest.quest.config.application.name, iconURL: getRewardImage(quest, quest?.quest?.config?.assets?.logotype, false) })
     .setDescription(`## Rewards: \n${rewards}\n\n## Tasks:\n${tasks}`);
 
 
@@ -132,6 +132,7 @@ export function genreate_message(quest: SwitchQuestResult, quests: Quest[], star
 
 
 }
+
 const isVideo = (url: string) => {
   const videoFormats = config.videoFormats;
   return videoFormats.some((format) => url.endsWith(format));
@@ -179,11 +180,16 @@ export async function notification_message(quest: Quest): Promise<any> {
     .setFooter({ text: quest.config.application.name, iconURL: getQuestImage(quest.id, quest?.config?.assets?.logotype, false) })
     .setDescription(`## Rewards: \n${rewards}\n\n## Tasks:\n${tasks}`);
 
+  const reward = quest?.config.rewards_config.rewards.find(d => d.sku_id);
   const imageConfigUrl = quest?.config?.assets?.hero ? config.rewardImages[quest?.config?.assets?.hero] : null;
   const image = imageConfigUrl ? imageConfigUrl : `https://cdn.discordapp.com/quests/${quest.id}/${quest?.config?.assets?.hero}`;
 
-  const thumbnail = isVideo(`${quest?.config.rewards_config.rewards.find(d => d.asset)?.asset}`) ? await getUrlFromDatabase(quest.id, `${quest?.config.rewards_config.rewards.find(d => d.asset)?.asset}`, roundCurrent).catch((err) => null) : `https://cdn.discordapp.com/quests/${quest.id}/${quest?.config.rewards_config.rewards.find(d => d.asset)?.asset}`;
+  let thumbnail;
 
+  if(config.rewardImages[reward.sku_id]) thumbnail = config.rewardImages[reward.sku_id]
+  else if(reward.asset && isVideo(reward?.asset)) thumbnail = await getUrlFromDatabase(quest.id, `${quest?.config.rewards_config.rewards.find(d => d.asset)?.asset}`, roundCurrent).catch((err) => null);
+  else if(reward.asset && !isVideo(reward.asset)) thumbnail = `https://cdn.discordapp.com/quests/${quest.id}/${reward.asset}`
+  else thumbnail = null;
 
 
 
@@ -233,8 +239,12 @@ function getRewardEmoji(quest: Quest) {
 
 
   const emoji = client.application.emojis.cache.find((e) => e.name.toLowerCase().trim() === emojiName.toLowerCase().trim())?.toString();
+  const configEmojiCheck = config.customEmojis?.[reward.sku_id];
+  const configEmoji = configEmojiCheck ? getEmojiFromClient(client, configEmojiCheck, true) : null;
+  if (configEmoji) return configEmoji;
   if (!emoji && reward) {
-    const emojiUrl = `https://cdn.discordapp.com/quests/${quest?.id}/${reward?.asset}`;
+    const emojiUrl = `https://cdn.discordapp.com/quests/${quest.id}/${reward?.asset}`;
+    if (!reward?.asset) return
     createEmojiFromUrl(client, emojiUrl, emojiName, roundImage, roundImage);
   }
   return emoji || getEmojiFromClient(client, "quest", true);
@@ -279,7 +289,7 @@ function generateButton(quest: SwitchQuestResult, started?: boolean): ButtonBuil
     style = ButtonStyle.Secondary;
     disabled = true;
   }
-  else if(!supported) {
+  else if (!supported) {
     customId = "notsupported";
     label = "Not Supported";
     emoji = getEmojiFromClient(client, "notsupported", false) || "❌";
@@ -287,18 +297,18 @@ function generateButton(quest: SwitchQuestResult, started?: boolean): ButtonBuil
     disabled = true;
   }
   else if (enrolled) {
-      if (started) {
-        customId = "stop";
-        label = "Stop";
-        emoji = getEmojiFromClient(client, "stop", false) || "⏹️";
-        style = ButtonStyle.Secondary;
-      } else {
-        customId = "start";
-        label = "Start";
-        emoji = getEmojiFromClient(client, "start", false) || "▶️";
-        style = ButtonStyle.Secondary;
-      }
-  } else if(!enrolled && supported) {
+    if (started) {
+      customId = "stop";
+      label = "Stop";
+      emoji = getEmojiFromClient(client, "stop", false) || "⏹️";
+      style = ButtonStyle.Secondary;
+    } else {
+      customId = "start";
+      label = "Start";
+      emoji = getEmojiFromClient(client, "start", false) || "▶️";
+      style = ButtonStyle.Secondary;
+    }
+  } else if (!enrolled && supported) {
     customId = "enroll";
     label = "Enroll";
     emoji = getEmojiFromClient(client, "enroll", false) || "➕";

@@ -70,7 +70,7 @@ export class QuestUser {
         );
 
         if (newQuests.length > 0) {
-            console.log("New Quests Found");
+        
             client.emit("newQuests", newQuests);
         }
     }

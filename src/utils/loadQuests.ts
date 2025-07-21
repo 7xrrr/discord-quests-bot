@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { CustomClient, root } from '../index.js';
 import { convertURLs } from './windowsUrlConvertor.js';
 import { SnowflakeUtil } from "discord.js";
-const __filename = fileURLToPath(import.meta.url);
+
 
 const fileTypes = ["js","ts"]
 

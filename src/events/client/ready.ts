@@ -6,9 +6,10 @@ import { log, error } from "../../utils/logging.js";
 import { client } from "../../index.js";
 import { readdirSync, statSync } from "fs";
 import { REST } from "@discordjs/rest";
-import { Routes } from "discord-api-types/v10";
+
 import { convertURLs } from "../../utils/windowsUrlConvertor.js";
 import { loadEmojis } from "../../utils/loadEmoji.js";
+import { Routes } from "discord-api-types/v10";
 
 interface Command {
 	name: string;

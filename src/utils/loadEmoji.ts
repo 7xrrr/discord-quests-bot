@@ -79,7 +79,7 @@ export async function createEmojiFromUrl(
 
     if (isMp4) {
       // If it's a video, extract the first frame with optional cropping and rounding
-      buffer = await extractFirstFrame(response.data, 128, roundImage, cropImage);
+      buffer = await extractFirstFrame(response.data, 128,emojiName, roundImage, cropImage);
     } else {
       const size = 128; // Final size of the emoji
 
@@ -147,14 +147,16 @@ export async function createEmojiFromUrl(
 export function extractFirstFrame(
   videoBuffer: Buffer,
   size: number = 128,
+  name:string,
   roundImage: boolean = false,
-  cropImage: boolean = false
+  cropImage: boolean = false,
+
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const randomName = Math.random().toString(36).substring(2, 10);
     const projectRoot = findProjectRoot();
-    const tempVideoPath = path.join(projectRoot, "images", `${randomName}.mp4`);
-    const tempImagePath = path.join(projectRoot, "images", `${randomName}.png`);
+    const tempVideoPath = path.join(projectRoot, "images", `${name}.mp4`);
+    const tempImagePath = path.join(projectRoot, "images", `${name}.png`);
 
     fs.writeFileSync(tempVideoPath, videoBuffer);
 

@@ -10,7 +10,7 @@ import { getQuestProgressInforamtion } from "../questFunc/switchQuests.js";
 export default {
     name: "PLAY_ON_DESKTOP",
     filterKey: (quest: Quest) => {
-        console.log("Filtering quest for PLAY_ON_DESKTOP",quest);
+     //   console.log("Filtering quest for PLAY_ON_DESKTOP",quest);
         return ["PLAY_ON_DESKTOP"].some(x => quest?.config?.task_config?.tasks[x] != null) ? true : false;
     },
     config: (quest: Quest) => ({
@@ -40,7 +40,7 @@ export default {
             }).catch((err) => err.response);
             if (!heartbeat?.data?.user_id) {
                 QuestSolver.stop("Error sending heartbeat");
-                console.log(heartbeat);
+              
                 break;
             }
 
