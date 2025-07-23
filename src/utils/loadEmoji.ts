@@ -259,7 +259,7 @@ export function extractFirstFrame(
       .screenshots({
         count: 1,
         folder: path.dirname(tempImagePath),
-        filename: `${randomName}.png`,
+        filename: `${name}.png`,
         size: `${size}x${size}`,
       });
   });
