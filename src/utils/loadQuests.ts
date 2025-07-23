@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import { CustomClient, root } from '../index.js';
 import { convertURLs } from './windowsUrlConvertor.js';
 import { SnowflakeUtil } from "discord.js";

@@ -87,6 +87,7 @@ export default {
         }
         // @ts-ignore
         const message = await interaction.editReply({ ...genratePayLoad(boostDate, user, commandConfig.targetLevel, color) });
+            // @ts-ignore
         if (message.components[0].components[0].disabled) return;
         const collecter = message.createMessageComponentCollector({ filter: (i) => i.user.id === interaction.user.id, time: ms("5m") });
         collecter.on("collect", async (i) => {

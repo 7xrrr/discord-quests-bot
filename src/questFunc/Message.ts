@@ -108,7 +108,8 @@ export function genreate_message(quest: SwitchQuestResult, quests: Quest[], star
   };
   const refreshButton = new ButtonBuilder()
     .setCustomId("refresh").setEmoji("🔄").setStyle(ButtonStyle.Secondary).setDisabled(started === true);
-  const buttonsRow = new ActionRowBuilder<any>().setComponents(button).addComponents(refreshButton);
+  const questLink = new ButtonBuilder().setStyle(ButtonStyle.Link).setEmoji("🔗").setLabel("View Quest").setURL(`https://discord.com/quests/${quest.questId}`)
+  const buttonsRow = new ActionRowBuilder<any>().setComponents(button).addComponents(refreshButton).addComponents(questLink);
 
   if (config.withButtons.active && config.withButtons.buttons.length > 0) {
     for (let index = 0; index < config.withButtons.buttons.length; index++) {
@@ -124,6 +125,7 @@ export function genreate_message(quest: SwitchQuestResult, quests: Quest[], star
       if (button.url) buttonBuilder.setURL(button.url);
       if (emoji) buttonBuilder.setEmoji(`${emoji}`);
       buttonsRow.addComponents(buttonBuilder);
+
     }
 
   }
