@@ -11,13 +11,14 @@ export default {
 
     // Custom reward images by type key
     rewardImages: {
-        "PLACEHOLDER": "https://i.ibb.co/rRNztwKq/reward.webp",
+        "1298745361602449479": "https://i.ibb.co/rRNztwKq/reward.webp",
         "1287881739531976815": "https://i.ibb.co/vxTHNqsS/eff35518172b971fa47c521ca21c7576d3a245433a669a6765f63b744b7b733a.png"
 
     },
     // Custom emojis by ID
     customEmojis: {
-        "1287881739531976815": "orbIcon"
+        "1287881739531976815": "orbIcon",
+        "1298745361602449479": "nitro_level_stone"
 
     },
     // Reward types with their IDs and names
