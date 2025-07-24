@@ -82,7 +82,7 @@ export function genreate_message(quest: SwitchQuestResult, quests: Quest[], star
     .setPlaceholder("Select a quest")
     .setMaxValues(1)
     .setMinValues(1)
-    .setDisabled(false)
+    .setDisabled(logsEmbed?.enabled === true || started === true)
 
     .addOptions(quests.map((q) => ({
       label: q.config.messages.quest_name,
