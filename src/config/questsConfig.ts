@@ -2,7 +2,7 @@ import { CustomClient } from "../core/customClient.js";
 
 export default {
     notification: {
-        token: "--" // self accouont token (not bot)
+        token: "--" ,// self accouont token (not bot)
         channel: "1414963290391707779",
         role: "1405572212403994684",
         dm: {
@@ -69,5 +69,6 @@ export default {
     
     - ** https://discord.gg/39c2c3jVbN **`
 }
+
 
 
