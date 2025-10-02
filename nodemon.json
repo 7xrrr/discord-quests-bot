@@ -1,0 +1,14 @@
+{
+  "ignore": [
+    "logs/*",
+    "temp/*",
+    "auth/",
+    "auth/**/*.json",
+    "seasons/",
+    "seasons/**/*.json",
+    "json/",
+    "json/**/*.json",
+    "mods/",
+    "mods/**/*.json"
+  ]
+}
