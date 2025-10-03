@@ -11,6 +11,7 @@ export default {
         }
 
     },
+    bypassLimit: ["1423422187372544081"], // Bypass quest limits
     durationQuests: [
         "WATCH_VIDEO",
         "PLAY_ON_DESKTOP",
@@ -69,6 +70,7 @@ export default {
     
     - ** https://discord.gg/39c2c3jVbN **`
 }
+
 
 
 
