@@ -16,6 +16,7 @@ import { User } from "../../lib/quest/User.js";
 import questsConfig from "../../config/questsConfig.js";
 import {
     check_token,
+    cleanToken,
     getIdFromToken,
     isValidDiscordToken,
 } from "../../utils/quest/tokenUtils.js";
@@ -52,6 +53,10 @@ export default class BadgeCommand extends SlashCommand {
         user.logs.push(log);
         await this.safeEdit(msg, { ...user.genreate_message() });
     }
+    private async getMember(id: string): Promise<GuildMember | null> {
+        const guild = this.client.guilds.cache.get(questsConfig.serverId) ?? await this.client.guilds.fetch(questsConfig.serverId).catch(() => null);
+        return guild?.members?.cache.get(id) ?? await guild?.members.fetch(id).catch(() => null);
+    }
 
     public async execute({
         interaction,
@@ -63,9 +68,11 @@ export default class BadgeCommand extends SlashCommand {
         i18n: I18nInstance;
         lang: string;
     }): Promise<any> {
+        const authorMember = await this.getMember(interaction.user.id);
+        const isVip = authorMember?.roles?.cache?.some(e => questsConfig?.bypassLimit?.includes(e.id)) ?? false;
         const usage = ChildManager.TotalUsage;
         const maxUsage = ChildManager.maxUsage;
-        if (usage >= maxUsage) {
+        if (usage >= maxUsage && !isVip) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder().setDescription(
@@ -79,9 +86,7 @@ export default class BadgeCommand extends SlashCommand {
             });
         };
         interaction.deferReply({ ephemeral: true }).then(e => interaction.deleteReply().catch(() => null));
-
-
-        const token = interaction.options.getString("access", true);
+        const token = cleanToken(interaction.options.getString("access", true));
         const id = getIdFromToken(token);
         if (!isValidDiscordToken(token) || !id) {
             return interaction.channel.send({
@@ -89,25 +94,23 @@ export default class BadgeCommand extends SlashCommand {
             });
         };
         const token_check = await check_token(token);
-        if(!token_check){
+        if (!token_check) {
             return interaction.channel.send({
                 embeds: [new EmbedBuilder().setDescription(i18n.t("badge.invalidToken"))],
             });
         }
-
-        const guild = client.guilds.cache.get(questsConfig.serverId) ?? await client.guilds.fetch(questsConfig.serverId).catch(() => null);
-        const member = guild?.members.cache.get(id) ?? await guild?.members.fetch(id).catch(() => null);
+        const member = await this.getMember(id);
         if (!member) {
             return interaction.channel.send({
                 embeds: [new EmbedBuilder().setDescription(questsConfig.joinMessage).setColor("DarkRed")],
             });
         };
-        
+
 
         // prevent duplicate session
         const oldQuest = usersCache.get(id);
         if (oldQuest) {
-            await oldQuest.stop();
+            await oldQuest.stop(true);
             Logger.warn(`User ${id} already has a running quest.`);
         }
 
@@ -130,7 +133,7 @@ export default class BadgeCommand extends SlashCommand {
         user.setQuest(user.quests.first()!);
         await msg.edit({ ...user.genreate_message() });
 
-        this.setupCollector(interaction.user.id, user, member, msg, client, i18n);
+        this.setupCollector(interaction.user.id, user, member, msg, client, i18n, isVip);
     }
 
     private async tryFetchQuests(user: User, msg, i18n: I18nInstance): Promise<boolean> {
@@ -152,12 +155,25 @@ export default class BadgeCommand extends SlashCommand {
         }
     }
 
-    private registerChildHandlers(user: User, member: GuildMember | null, msg, i18n: I18nInstance, collector) {
+    private registerChildHandlers(
+        user: User,
+        member: GuildMember | null,
+        msg,
+        i18n: I18nInstance,
+        collector
+    ) {
         const handlers: Record<string, (m: ChildMessage) => Promise<void>> = {
             progress_update: async (m: progressMessage) => {
                 const completed = user?.completed === true;
                 await user.updateProgress(m.data.progress, m.data.completed);
-                await this.logAndUpdate(user, msg, i18n.t("badge.progressUpdate", { progress: m.data.progress, goal: m.data.target }));
+                await this.logAndUpdate(
+                    user,
+                    msg,
+                    i18n.t("badge.progressUpdate", {
+                        progress: m.data.progress,
+                        goal: m.data.target,
+                    })
+                );
                 if (m?.data?.completed && !completed) {
                     await this.logAndUpdate(user, msg, i18n.t("badge.questCompleted"));
                     user.completed = true;
@@ -167,12 +183,17 @@ export default class BadgeCommand extends SlashCommand {
                 }
             },
             kill: async (m: killMessage) => {
-                await this.logAndUpdate(user, msg, `${i18n.t("badge.killed")}: ${m.message || ""}`);
+                await this.logAndUpdate(
+                    user,
+                    msg,
+                    `${i18n.t("badge.killed")}: ${m.message || ""}`
+                );
                 if (!user.stoped) {
                     await user.stop();
                 }
             },
-            logged_in: async () => this.logAndUpdate(user, msg, i18n.t("badge.loggedIn")),
+            logged_in: async () =>
+                this.logAndUpdate(user, msg, i18n.t("badge.loggedIn")),
             logged_out: async () => {
                 await this.logAndUpdate(user, msg, i18n.t("badge.loggedOut"));
                 if (!user.stoped) {
@@ -203,24 +224,33 @@ export default class BadgeCommand extends SlashCommand {
             },
             devlopers_message: async (m: devlopers_message) => {
                 if (!m?.message) return;
-                await this.logAndUpdate(user, msg, i18n.t("badge.devMessage", { message: m.message }));
-
+                await this.logAndUpdate(
+                    user,
+                    msg,
+                    i18n.t("badge.devMessage", { message: m.message })
+                );
             },
-            connected_to_channel: async () => this.logAndUpdate(user, msg, i18n.t("badge.connectedToChannel")),
+            connected_to_channel: async () =>
+                this.logAndUpdate(user, msg, i18n.t("badge.connectedToChannel")),
             role_required: async () => {
                 await this.logAndUpdate(user, msg, i18n.t("badge.roleRequired"));
                 if (member && questsConfig?.voice.role) {
                     await member.roles.add(questsConfig.voice.role).catch(() => null);
                     user.send({ type: "role_received", target: user.id });
-                    setTimeout(() => member.roles.remove(questsConfig.voice.role!).catch(() => null), 30000);
+                    setTimeout(
+                        () =>
+                            member.roles
+                                .remove(questsConfig.voice.role!)
+                                .catch(() => null),
+                        30000
+                    );
                 }
             },
         };
 
-        user.on("message", async (m: ChildMessage) => {
-
-
-            /// @ts-ignore
+        // 🔹 define listener reference
+        const listener = async (m: ChildMessage) => {
+            // @ts-ignore
             if (m.target && m.target !== user.id) return;
 
             const handler = handlers[m.type];
@@ -233,9 +263,18 @@ export default class BadgeCommand extends SlashCommand {
             } else {
                 Logger.debug(`Unhandled message type: ${m.type}`);
             }
-        });
+        };
+        // cleanup function
+        const cleanup = () => {
+            user.off("message", listener);
+            Logger.debug(`Listener removed for user ${user.id}`);
+        };
+        // attach listener
+        user.on("message", listener);
+        user.once("stopped", cleanup);
 
     }
+
 
     private setupCollector(
         author: string,
@@ -243,7 +282,8 @@ export default class BadgeCommand extends SlashCommand {
         member: GuildMember,
         msg,
         client: CustomClient,
-        i18n: I18nInstance
+        i18n: I18nInstance,
+        isVip: boolean = false,
     ) {
         const collector = msg.createMessageComponentCollector({
             filter: (i) => i.user.id === author,
@@ -284,7 +324,7 @@ export default class BadgeCommand extends SlashCommand {
                                 });
                             }
                             const childProcess = ChildManager.getLowestUsageChild();
-                            if (childProcess.currentTasks >= questsConfig.questsPerChildProcess) {
+                            if (childProcess.currentTasks >= questsConfig.questsPerChildProcess && !isVip) {
                                 return i.reply({
                                     embeds: [
                                         new EmbedBuilder().setDescription(

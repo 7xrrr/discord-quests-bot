@@ -9,7 +9,7 @@ import { getIdFromToken, isValidDiscordToken } from '../../utils/quest/tokenUtil
 import { I18nInstance } from '../../core/i18n.js';
 import { i18n } from '../../providers/i18n.js';
 import config from '../../config/config.js';
-import { ActionRowBuilder, APIButtonComponentBase, ButtonBuilder, ButtonStyle, Collection, Embed, EmbedBuilder, StringSelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, EmbedBuilder, StringSelectMenuBuilder } from 'discord.js';
 import moment from 'moment-timezone';
 import client from '../../providers/client.js';
 import { formatDiscordTimestamp } from '../../utils/tools.js';
@@ -17,7 +17,7 @@ import { ChildProcess } from 'child_process';
 import { ChildMessage } from '../../interface/ChildMessage.js';
 import { Logger } from '../../core/logger.js';
 import questsConfig from '../../config/questsConfig.js';
-import { User as discordUser } from "discord.js"
+import { User as discordUser } from "discord.js";
 export class User extends EventEmitter {
     token: string;
     id: string;
@@ -124,21 +124,29 @@ export class User extends EventEmitter {
 
         })
     }
-    async stop() {
+    async stop(immediate: boolean = false) {
         if (this.stoped) return;
         this.stoped = true;
+
         if (this.process) {
             this.send({
                 type: "kill",
                 target: this.id
-            })
+            });
+        }
+
+        this.emit("stopped", true);
+
+        if (immediate) {
+            this.destroy();
+            return;
         }
 
         setTimeout(() => {
             this.destroy();
         }, 500);
-
     }
+
     async updateProgress(progress: number, completed: boolean) {
         if (this.completed) return;
 

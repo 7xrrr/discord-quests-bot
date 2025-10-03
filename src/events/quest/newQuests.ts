@@ -1,4 +1,4 @@
-import { ClientEvents, Collection, Guild, GuildMember, Snowflake, TextChannel } from "discord.js";
+import { ClientEvents, Collection, Guild, GuildMember, Message, Snowflake, TextChannel } from "discord.js";
 import { baseDiscordEvent } from "../../lib/handler/baseClientEvent.js";
 import cron from "node-cron";
 import { Quest } from "../../lib/quest/Quest.js";
@@ -85,13 +85,15 @@ export default class readyEvent extends baseDiscordEvent {
         const messageContent = await quest.notification_message();
 
         // Send to channel
-        await channel.send({ ...messageContent })
+        const channelMessage: Message = await channel.send({ ...messageContent })
             .then(async () => {
                 this.logger.info(`Sent notification for quest ${quest.id} in channel ${channel.id}`);
                 questDoc.messageSent = true;
                 await questRepo.save(questDoc);
-            })
-            .catch(() => null);
+            }).catch(() => null);
+        if (channelMessage) {
+            channelMessage.crosspost().catch(() => null);
+        };
 
         // Send via DM if applicable
         if (!members?.size) return;

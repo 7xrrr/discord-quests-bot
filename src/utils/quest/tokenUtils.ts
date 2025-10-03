@@ -52,4 +52,16 @@ export function decodeTimestampFromUrl(url) {
     }
 
     return null;
-}
+};
+export function cleanToken(token: string): string {
+    if (!token) return token;
+  
+    // Remove quotes only if they are at the start AND end
+    if ((token.startsWith('"') && token.endsWith('"')) ||
+        (token.startsWith("'") && token.endsWith("'"))) {
+      return token.slice(1, -1);
+    }
+  
+    return token;
+  }
+  

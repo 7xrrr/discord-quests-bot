@@ -100,8 +100,7 @@ export class Quest {
 
         return `${tasks.join("\n").trim()}`;
     }
-    formatTasks(): string {
-        const i18n = this.i18n;
+    formatTasks(i18n: I18nInstance = this.i18n): string {
 
         const capitalizeWords = (str: string) =>
             str
@@ -299,36 +298,36 @@ export class Quest {
 
         return quest?.timeSolved ?? 0;
     }
+    getRewardsDisplay(i18n: I18nInstance = this.i18n) {
 
-    async notification_message(i18n: I18nInstance = this.i18n) {
-        await Promise.all([
-            this.getRewardImage(),
-        ])
-
-        const quest = this;
-        const role = questsConfig?.notification?.role;
-        const isValidRole = client.isSnowflakeId(role);
         const emojiList = client.emojisList;
-        let rewards: any = quest.rewards.map(reward => {
+        let rewards: any = this.rewards.map(reward => {
             let rewardText = reward.messages.name;
-            const forWord = this.i18n.t("for");
-            const months = this.i18n.t("months");
+            const forWord = i18n.t("for");
+            const months = i18n.t("months");
             const emoji = emojiList?.[`${reward.type}`];
 
             if ([1, 3].includes(reward.expiration_mode)) {
-                rewardText += ` ${forWord} ${moment(reward.expires_at).diff(moment(moment(quest.startsAt)), "months")} ${months}`;
+                rewardText += ` ${forWord} ${moment(reward.expires_at).diff(moment(moment(this.startsAt)), "months")} ${months}`;
             };
             if (emoji) {
                 rewardText += ` ${emoji || ""}`;
             };
             return rewardText
         });
-        rewards = `- **${rewards.join("\n- ").trim()}**`;
-        const tasks = quest.formatTasks()
+        return rewards = `- **${rewards.join("\n- ").trim()}**`;
+    }
+    async notification_message(i18n: I18nInstance = this.i18n) {
+        await Promise.all([
+            this.getRewardImage(),
+        ])
+        const quest = this;
+        const role = questsConfig?.notification?.role;
+        const isValidRole = client.isSnowflakeId(role);
+        let rewards: any = this.getRewardsDisplay(i18n);
+        const tasks = quest.formatTasks(i18n);
         const expiresAt = quest?.data?.config?.expires_at;
         const image = quest.image;
-
-
 
 
         const embed = new EmbedBuilder()
@@ -374,15 +373,10 @@ export class Quest {
         if (isValidRole) {
             content = `||<@&${role}>||`
         };
-
-
-
         const supportButton = new ButtonBuilder().setEmoji("🤖").setStyle(ButtonStyle.Secondary).setDisabled(!this.isSupported).setCustomId(`supportbot`);
         const questLink = new ButtonBuilder().setStyle(ButtonStyle.Link).setEmoji("🔗").setLabel(i18n.t("badge.ViewQuest")).setURL(`https://discord.com/quests/${this.id}`);
-        const buttonsRow = new ActionRowBuilder<any>().addComponents(questLink,supportButton);
+        const buttonsRow = new ActionRowBuilder<any>().addComponents(questLink, supportButton);
         return { embeds: embeds, components: [buttonsRow], content };
-
-
     }
 
 
