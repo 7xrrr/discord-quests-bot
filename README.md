@@ -11,9 +11,9 @@ Users can trigger the process by running the command:
 
 Once the quest is accepted manually by the user, the bot automatically performs the required actions on their behalf.
 
-> ⚠️ **Important:**
-> The bot **does not automatically accept quests** — users must accept them first.
-> After acceptance, the `/badge` command will handle the rest automatically.
+- ⚠️ **Important:**
+- The bot **does not automatically accept quests** — users must accept them first.
+- After acceptance, the `/badge` command will handle the rest automatically.
 
 ---
 
