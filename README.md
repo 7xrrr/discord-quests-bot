@@ -90,23 +90,8 @@ const defaults = {
 
 ### 🎯 **questsConfig.ts**
 
-Controls all **quest-related settings** — like notifications, channels, rewards, and automation behavior.
 
-```ts
-export default {
-    notification: {
-        token: "--", // self account token (not bot)
-        channel: "1414963290391707779",
-        dm: { enabled: true, dmRoles: ["1405572212403994684"] },
-    },
-    bypassLimit: ["1423422187372544081"], // Bypass quest limits
-    durationQuests: ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP"],
-    image: { channelId: "1421221274721456242", guildId: "1399471603003428966" },
-    voice: { channel: "1421938834651742270", role: "1405572212403994684" },
-    proxyType: "http",
-    buttons: [{ url: "https://youtu.be/eJoa4obHhng", emoji: "▶️" }],
-};
-```
+
 
 **What it does:**
 
@@ -116,10 +101,6 @@ export default {
 * Configures **proxy** options and **bypass roles**.
 * Adds **custom buttons, rewards, and invite messages**.
 
-
----
-
-### 🎯 `questsConfig.ts`
 
 This file defines **how the bot handles quests**, including notifications, limits, proxy settings, and custom visuals.
 It’s one of the most important configuration files for controlling quest automation and behavior.
