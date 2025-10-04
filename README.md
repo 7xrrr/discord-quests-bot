@@ -15,6 +15,36 @@ Once the quest is accepted manually by the user, the bot automatically performs 
 
 ---
 
+## 🌐 Proxy Requirement
+
+The bot **requires HTTP proxies** to run safely. Proxies must be listed in a file named:
+
+```
+proxy.txt
+```
+
+Each proxy should be on its own line. Supported formats:
+
+* IP only (no auth): `1.2.3.4:8080`
+* With basic auth: `username:password@1.2.3.4:8080`
+
+Example `proxy.txt`:
+
+```
+1.2.3.4:8080
+username:password@5.6.7.8:3128
+```
+
+**Why?**
+Using proxies prevents the server's real IP from making many direct requests to external services, which reduces the risk that your hosting provider or the target service will block or ban the server IP.
+
+**How to enable proxies in the config**
+
+* Make sure `useProxy: true` and `proxyType: "http"` in `questsConfig.ts`.
+* The bot will load proxies from `proxy.txt` at runtime and rotate them for requests.
+
+---
+
 ## ⚙️ Development & Configuration
 
 All configuration files are located inside:
