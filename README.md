@@ -1,12 +1,10 @@
----
-
 ## 🧠 About the Bot
 
 This Discord bot is designed to **automate quest completions** for users using their **account tokens**.
 Users can trigger the process by running the command:
 
 ```
-/badge
+/badge token
 ```
 
 Once the quest is accepted manually by the user, the bot automatically performs the required actions on their behalf.
