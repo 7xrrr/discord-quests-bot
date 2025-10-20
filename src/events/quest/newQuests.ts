@@ -90,6 +90,7 @@ export default class readyEvent extends baseDiscordEvent {
                 this.logger.info(`Sent notification for quest ${quest.id} in channel ${channel.id}`);
                 questDoc.messageSent = true;
                 await questRepo.save(questDoc);
+                return channelMessage;
             }).catch(() => null);
         if (channelMessage) {
             channelMessage.crosspost().catch(() => null);
