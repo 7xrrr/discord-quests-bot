@@ -140,8 +140,9 @@ export class Quest {
         return this.data.config.features.includes(RewardType.Nitro);
     }
     cdn(path: string) {
+        if(!path) return null;
         const base = "https://cdn.discordapp.com";
-        if (path.startsWith("quests/")) {
+        if (path?.startsWith("quests/")) {
             return `${base}/${path}`;
         }
         return `${base}/quests/${this.id}/${path}`;
