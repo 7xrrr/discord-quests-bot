@@ -140,8 +140,12 @@ export class Quest {
         return this.data.config.features.includes(RewardType.Nitro);
     }
     cdn(path: string) {
-        return `https://cdn.discordapp.com/quests/${this.id}/${path}`
-    }
+        const base = "https://cdn.discordapp.com";
+        if (path.startsWith("quests/")) {
+            return `${base}/${path}`;
+        }
+        return `${base}/quests/${this.id}/${path}`;
+    }    
     async getRewardImage() {
         const reward = this?.rewards[0];
         const rewardId = reward?.sku_id;
