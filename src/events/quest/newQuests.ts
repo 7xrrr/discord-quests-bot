@@ -86,14 +86,22 @@ export default class readyEvent extends baseDiscordEvent {
 
         // Send to channel
         const channelMessage: Message = await channel.send({ ...messageContent })
-            .then(async () => {
+            .then(async (channelMessage) => {
                 this.logger.info(`Sent notification for quest ${quest.id} in channel ${channel.id}`);
                 questDoc.messageSent = true;
                 await questRepo.save(questDoc);
                 return channelMessage;
-            }).catch(() => null);
+            })
+            .catch(() => {
+                this.logger.warn(`Failed to send notification for quest ${quest.id} in channel ${channel.id}`);
+                return null;
+            })
         if (channelMessage) {
-            channelMessage.crosspost().catch(() => null);
+            channelMessage.crosspost().then(() => {
+                this.logger.info(`Crossposted quest ${quest.id} notification in channel ${channel.id}`);
+            }).catch(() => {
+                this.logger.warn(`Failed to crosspost quest ${quest.id} notification in channel ${channel.id}`);
+            })
         };
 
         // Send via DM if applicable
@@ -124,22 +132,20 @@ export default class readyEvent extends baseDiscordEvent {
             const guildAndChannel = await this.getGuildAndChannel();
             if (!guildAndChannel) return;
             const { guild, channel } = guildAndChannel;
-
-            const members = await this.fetchMembersToDM(guild);
-
             const oldQuests = new Collection<string, Quest>();
-            selfUser.quests.forEach(q => oldQuests.set(q.id, q));
 
+
+            selfUser.quests.forEach(q => oldQuests.set(q.id, q));
             const newQuests = await selfUser.fetchQuests();
 
+            
             // Only quests that are new and started within last 6 hours
             const diff = newQuests.filter(q =>
                 !oldQuests.has(q.id) &&
                 moment(q.startsAt).isAfter(moment().subtract(6, "hours"))
             );
-
             if (!diff.size) return;
-
+            const members = await this.fetchMembersToDM(guild);
             const unSentQuests = await Promise.all(diff.map(q => this.checkQuest(q)));
             const filteredQuests = unSentQuests.filter(q => q !== null);
 
