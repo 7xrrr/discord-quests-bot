@@ -293,8 +293,8 @@ export default class BadgeCommand extends SlashCommand {
     ) {
         const collector = msg.createMessageComponentCollector({
             filter: (i) => i.user.id === author,
-            time: client.clientMs("5m"),
-            idle: 60_000,
+            time: client.clientMs("20m"),
+          //  idle: 60_000,
         });
 
         collector.on("collect", async (i: ButtonInteraction | StringSelectMenuInteraction) => {
@@ -324,7 +324,6 @@ export default class BadgeCommand extends SlashCommand {
                                     ephemeral: true,
                                 });
                             }
-                            const method = user?.selectedQuest?.solveMethod; // The solve method for the quest each method has a required time in seconds
                             // get the child process with the lowest usage
                             const childProcess = ChildManager.getLowestUsageChild();
                             // limit for how many quests can be run in a single child process
@@ -340,33 +339,7 @@ export default class BadgeCommand extends SlashCommand {
                                     ],
                                     ephemeral: true,
                                 });
-                            };
-
-                            // calculate remaining time for the method 
-                            const remaining = (method?.target ?? 0) - (method?.current ?? 0);
-                            const isDuration = method?.type === "duration";
-                            const timeString = isDuration && remaining > 0
-                                ? `${remaining + 60}s`   // duration case
-                                : `15m`;                 // fallback case
-                            console.log(`Setting collector time to ${timeString} for method type ${method?.type} with remaining ${remaining}`);
-                            // clientMs is a utility function to convert time string to milliseconds (same as ms package)
-                            collector.resetTimer({
-                                time: client.clientMs(timeString),
-                                idle: client.clientMs(timeString),
-                            });
-
-                            // debug logs to check the time settings
-                            console.log(
-
-                                client.clientMs(collector.options.time),
-                                client.clientMs(collector.options.idle),
-                            )
-
-
-
-
-
-                            // ignore this 
+                            }
 
                             user.setProcess(childProcess.process);
                             childProcess.currentTasks++;
@@ -408,10 +381,7 @@ export default class BadgeCommand extends SlashCommand {
                 user.destroy();
             }
             user = null;
-            console.log({
-                endReason: collector.endReason,
-
-            })
+          
 
 
 
