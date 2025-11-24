@@ -39,7 +39,10 @@ export const addClient = (client: ChildUser) => {
     })
 }
 export const removeClient = (client: ChildUser) => {
+    if(!client?.id) return;
+    if(!clients.has(client?.id)) return;
     clients.delete(client.id);
+    client.destroy();
     sendToProcess({
         type: "process_update",
         count: clients.size,
