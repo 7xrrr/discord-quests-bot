@@ -1,5 +1,5 @@
 
-import fs, { unlink, unlinkSync } from "fs";
+import fs from "fs";
 
 import path from "path";
 import { findProjectRoot } from "./tools.js";
@@ -11,7 +11,7 @@ import ffmpeg from "fluent-ffmpeg";
 import { CustomClient } from "../core/customClient.js";
 import { Logger } from "../core/logger.js";
 
-
+const extractFirstFrameCached: Map<string, Promise<Buffer>> = new Map();
 
 export async function loadEmojis(client: CustomClient) {
 
@@ -71,7 +71,7 @@ export async function createEmojiFromUrl(
     if (emojiCache) return emojiCache.toString();
 
     // Fetch emoji image or video
-    const response = await axios.get(emojiUrl, { responseType: "arraybuffer" });
+    let response = await axios.get(emojiUrl, { responseType: "arraybuffer" });
 
     const isMp4 =
       emojiUrl.endsWith(".mp4") ||
@@ -85,13 +85,14 @@ export async function createEmojiFromUrl(
     } else {
       const size = 128; // Final size of the emoji
 
-      let image = sharp(response.data).resize(size, size);
+      let image = sharp(response?.data).resize(size, size);
       
       if (cropImage) {
-        const metadata = await sharp(response.data).metadata();
+        const metadata = await sharp(response?.data).metadata();
         if (!metadata.width || !metadata.height) {
           throw new Error("Invalid image metadata.");
         }
+        response = null;
 
         // Scale factors based on original 512px reference
         const baseSize = 512;
@@ -153,8 +154,7 @@ function cleanupTempFiles(...files: string[]) {
     }
   }
 }
-
-export async function extractFirstFrame(
+export  async function _extractFirstFrame(
   videoBuffer: Buffer,
   size: number = 128,
   name: string,
@@ -241,6 +241,7 @@ export async function extractFirstFrame(
           }
 
           const processedBuffer = await image.png().toBuffer();
+          image = null;
         
           cleanupTempFiles(tempVideoPath, tempImagePath);
           resolve(processedBuffer);
@@ -260,4 +261,24 @@ export async function extractFirstFrame(
         size: `${size}x${size}`,
       });
   });
+
+}
+
+
+
+export async function extractFirstFrame(
+  videoBuffer: Buffer,
+  size: number = 128,
+  name: string,
+  roundImage: boolean = false,
+  cropImage: boolean = false
+): Promise<Buffer> {
+  if(extractFirstFrameCached.has(name)) {
+    return extractFirstFrameCached.get(name)!;
+  }
+  const extractionPromise = _extractFirstFrame(videoBuffer, size, name, roundImage, cropImage);
+  extractFirstFrameCached.set(name, extractionPromise);
+  const result = await extractionPromise;
+  extractFirstFrameCached.delete(name);
+  return result;
 }

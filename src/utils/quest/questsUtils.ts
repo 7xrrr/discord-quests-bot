@@ -6,6 +6,7 @@ import { imageRepo } from "../../core/cache.js";
 import axios from "axios";
 import { extractFirstFrame } from "../loadEmoji.js";
 import { Logger } from "../../core/logger.js";
+const uploadCache: Map<string, Promise<string | null>> = new Map();
 
 
 
@@ -38,9 +39,9 @@ export async function refreshExpiredImage(questImage): Promise<string | null> {
   return newImage.url;
 }
 
-async function uploadNewImage(key: string, url: string, round: boolean): Promise<string | null> {
-  const response = await axios.get(url, { responseType: "arraybuffer" }).catch(() => null);
-  if (!response) {
+async function _uploadNewImage(key: string, url: string, round: boolean): Promise<string | null> {
+  let response = await axios.get(url, { responseType: "arraybuffer" }).catch(() => null);
+  if (!response?.data) {
     Logger.error("Failed to fetch image from URL");
     return null;
   }
@@ -55,16 +56,18 @@ async function uploadNewImage(key: string, url: string, round: boolean): Promise
 
   const imageName = `${url.split("/").pop().split(".")[0]}`;
   Logger.info(`Uploading new image: ${imageName}`);
-  const buffer = await extractFirstFrame(response.data, 512, imageName, round).catch(() => null);
+  let buffer = await extractFirstFrame(response?.data, 512, imageName, round).catch(() => null);
+  response = null;
   if (!buffer) {
     Logger.error("Failed to process image buffer");
     return null;
   }
 
-  const attachment = new AttachmentBuilder(buffer).setName(imageName + ".png");
+  let attachment = new AttachmentBuilder(buffer).setName(imageName + ".png");
   const newMessage = await channel.send({ files: [attachment] });
+  buffer = null;
+  attachment = null;
   const uploadedImage = newMessage.attachments.find(e => e.url);
-
   if (!uploadedImage) {
     Logger.error("Failed to upload image to Discord channel");
     return null;
@@ -84,6 +87,16 @@ async function uploadNewImage(key: string, url: string, round: boolean): Promise
   client.images.set(key, newImageData);
 
   return uploadedImage.url;
+}
+async function uploadNewImage(key: string, url: string, round: boolean): Promise<string | null> {
+  if (uploadCache.has(key)) {
+    return uploadCache.get(key)!;
+  }
+  const uploadPromise = _uploadNewImage(key, url, round);
+  uploadCache.set(key, uploadPromise);
+  const result = await uploadPromise;
+  uploadCache.delete(key);
+  return result;
 }
 
 export async function getUrlFromDatabase(key: string, url: string, round: boolean): Promise<string | null> {
