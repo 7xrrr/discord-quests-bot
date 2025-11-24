@@ -140,13 +140,13 @@ export class Quest {
         return this.data.config.features.includes(RewardType.Nitro);
     }
     cdn(path: string) {
-        if(!path) return null;
+        if (!path) return null;
         const base = "https://cdn.discordapp.com";
         if (path?.startsWith("quests/")) {
             return `${base}/${path}`;
         }
         return `${base}/quests/${this.id}/${path}`;
-    }    
+    }
     async getRewardImage() {
         const reward = this?.rewards[0];
         const rewardId = reward?.sku_id;
@@ -209,19 +209,37 @@ export class Quest {
         }
     }
     get emoji() {
-        const reward = this?.rewards[0];
+        const reward = this?.rewards?.[0];
         const rewardId = reward?.sku_id;
-        const customRewardsEmoji = questsConfig?.customRewardsEmoji?.[rewardId];
-        if (customRewardsEmoji) {
-            const custom_emoji = client.getEmoji(customRewardsEmoji, false);
-            if (custom_emoji) return custom_emoji;
+        const completed = this.isCompleted();
+
+        // 1. Completed quest → priority
+        if (completed) {
+            return client.getEmoji("completed", false) || "✅";
         }
-        const quest_emoji = client.getEmoji(this.id, false);
-        if (!quest_emoji) {
-            this.loadEmoji()
+
+        // 2. Custom reward emoji
+        if (rewardId) {
+            const customId = questsConfig?.customRewardsEmoji?.[rewardId];
+            if (customId) {
+                const customEmoji = client.getEmoji(customId, false);
+                if (customEmoji) return customEmoji;
+            }
         }
-        return quest_emoji ?? emojis(client)?.quest ?? "🎉";
+
+        // 3. Quest-specific emoji
+        let questEmoji = client.getEmoji(this.id, false);
+        if (!questEmoji) {
+            // Load asynchronously (no blocking)
+            this.loadEmoji();
+            // Re-check after load attempt
+            questEmoji = client.getEmoji(this.id, false);
+        }
+
+        // 4. Fallback default
+        return questEmoji || emojis(client)?.quest || "🎉";
     }
+
 
     get messages() {
         return this.data.config.messages;
@@ -387,7 +405,7 @@ export class Quest {
 
     get button(): ButtonBuilder {
 
-        const i18n = this.user.i18n
+        const i18n = this.i18n;
         const supported = this.isSupported();
         const completed = this.progress.some(e => e.completed);
         const enrolled = this.progress.some(e => e.enrolled);
@@ -432,6 +450,7 @@ export class Quest {
             label = i18n.t("buttons.enroll")
             emoji = client.getEmoji("enroll", false) || "➕";
             style = ButtonStyle.Secondary;
+            disabled = false
         }
 
         return new ButtonBuilder()
@@ -440,6 +459,29 @@ export class Quest {
             .setEmoji(emoji)
             .setStyle(style)
             .setDisabled(disabled);
+    }
+    async enroll() {
+        const url = `https://discord.com/api/v9/quests/${this.id}/enroll`;
+        const data = { location: 11, is_targeted: false, metadata_raw: null }
+        const response = await this.user.api.post(url, data).then(res => res.data).catch((err) => err?.response?.data);
+        if (response?.enrolled_at) {
+            this.data.user_status = response;
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+    destroy() {
+        /*   this.user = null!;
+           this.data = null!;
+           this.token = null;
+           */
+
+
+
+
     }
 
 

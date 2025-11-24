@@ -22,6 +22,7 @@ export class User extends EventEmitter {
     token: string;
     id: string;
     i18n: I18nInstance;
+    destroyed: boolean = false;
     proxy: ProxyInterface | null;
     _api: AxiosInstance;
     selectedQuest: Quest | null = null;
@@ -111,6 +112,8 @@ export class User extends EventEmitter {
         const current = solveMethod.current;
         const target = solveMethod.target;
         this.started = true;
+        this.quests.clear();
+        this.quests.set(this.selectedQuest.id, this.selectedQuest);
         this.send({
             type: "start",
             data: {
@@ -205,6 +208,10 @@ export class User extends EventEmitter {
             if (this.selectedQuest) {
                 this.selectedQuest = this.quests.get(this.selectedQuest.id);
             }
+            if (this.started && this.selectedQuest) {
+                this.quests.clear();
+                this.quests.set(this.selectedQuest.id, this.selectedQuest);
+            };
 
             return this.quests.size > 0 ? this.quests : null;
         } catch (err) {
@@ -352,7 +359,15 @@ export class User extends EventEmitter {
         return { files, embeds: embeds, components: [new ActionRowBuilder<any>().setComponents(menu), buttonsRow] };
     }
     destroy() {
+        this.destroyed = true;
         usersCache.delete(this.id);
+        this.quests.map(quest => quest.destroy());
+        this.quests.clear();
+        this.quests.set(this.selectedQuest?.id, this.selectedQuest);
+        this.process = null;
+        this.proxy = null;
+        this.logs = this.logs.reverse().slice(0, 5).reverse(); // keep last 5 logs
+        // this.selectedQuest = null;
         this.removeAllListeners();
         this.clearProcessListeners();
     }
