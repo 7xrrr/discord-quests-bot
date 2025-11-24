@@ -25,6 +25,7 @@
     "answerYet": "pas encore de réponse",
     "commandError": "- **Une erreur est survenue lors de l'exécution de la commande.**",
     "badge": {
+        "enrollFailed": "Échec de l'inscription. Veuillez réessayer plus tard.",
         "supportedQuest": "Ce bouton signifie que vous pouvez utiliser notre bot pour accomplir cette quête.",
         "invalidToken": "Jeton invalide",
         "fetchingQuests": "Récupération des quêtes...",

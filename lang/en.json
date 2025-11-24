@@ -25,6 +25,7 @@
     "answerYet": "no answer yet",
     "commandError": "- **An error occurred while executing the command.**",
     "badge": {
+        "enrollFailed": "Enrollment failed. Please try again later.",
         "supportedQuest": "This button means that you can use our bot to solve this quest.",
         "invalidToken": "Invalid Token",
         "fetchingQuests": "Fetching Quests...",
