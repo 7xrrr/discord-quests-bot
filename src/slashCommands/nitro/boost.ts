@@ -136,7 +136,7 @@ function genratePayLoad(i18n: I18nInstance, boostDate: Date, author: User, targe
     }
 
     let embedDescription = ``;
-    embedDescription += `- **${i18n.t("boost.boostLevel")} ${currentLevel.level}** ${currentLevel.emoji}\n`;
+    embedDescription += `- **${i18n.t("boost.+")} ${currentLevel.level}** ${currentLevel.emoji}\n`;
     embedDescription += `-# -  ${i18n.t("boost.boostLevel")} ${formatDiscordTimestamp(boostDate.getTime(), "Date")}\n`;
     embedDescription += `-# -  ${i18n.t("boost.boostingStreak")}: \`${months}\` Months\n\n`;
     if (nextLevel) {

@@ -2,8 +2,9 @@ import {
     ButtonInteraction,
     ChatInputCommandInteraction,
     GuildMember,
+    Message,
     SlashCommandStringOption,
-    StringSelectMenuInteraction,
+    StringSelectMenuInteraction
 } from "discord.js";
 import {
     SlashCommand,
@@ -165,7 +166,7 @@ export default class BadgeCommand extends SlashCommand {
         const handlers: Record<string, (m: ChildMessage) => Promise<void>> = {
             progress_update: async (m: progressMessage) => {
                 const completed = user?.completed === true;
-                await user.updateProgress(m.data.progress, m.data.completed);
+                await user.updateProgress(m?.data?.progress, m.data?.completed);
                 await this.logAndUpdate(
                     user,
                     msg,
@@ -190,6 +191,7 @@ export default class BadgeCommand extends SlashCommand {
                 );
                 if (!user.stoped) {
                     await user.stop();
+                    collector.stop();
                 }
             },
             logged_in: async () =>
@@ -268,6 +270,10 @@ export default class BadgeCommand extends SlashCommand {
         const cleanup = () => {
             user.off("message", listener);
             Logger.debug(`Listener removed for user ${user.id}`);
+            setTimeout(() => {
+                user = null as any;
+            }, 5000);
+
         };
         // attach listener
         user.on("message", listener);
@@ -280,14 +286,15 @@ export default class BadgeCommand extends SlashCommand {
         author: string,
         user: User,
         member: GuildMember,
-        msg,
+        msg: Message,
         client: CustomClient,
         i18n: I18nInstance,
         isVip: boolean = false,
     ) {
         const collector = msg.createMessageComponentCollector({
             filter: (i) => i.user.id === author,
-            time: client.clientMs("15m"),
+            time: client.clientMs("5m"),
+            idle: 60_000,
         });
 
         collector.on("collect", async (i: ButtonInteraction | StringSelectMenuInteraction) => {
@@ -300,20 +307,14 @@ export default class BadgeCommand extends SlashCommand {
 
                 if (i.isButton()) {
                     switch (i.customId) {
-                        case "refresh":
-                            if (!(await this.tryFetchQuests(user, msg, i18n))) return;
-                            return i.update({ ...user.genreate_message() });
-
-                        case "stop":
-                            if (user.stoped) {
-                                return i.reply({
-                                    embeds: [new EmbedBuilder().setDescription(i18n.t("badge.alreadyStoped")).setColor("DarkRed")],
-                                    ephemeral: true,
-                                });
-                            }
-                            user.stop();
-                            collector.stop();
-                            return i.update({ ...user.genreate_message() });
+        
+                        case "enroll":
+                            const response = await user.selectedQuest.enroll();
+                            if(response)  return  i.update({ ...user.genreate_message() });
+                            return i.reply({
+                                embeds: [new EmbedBuilder().setDescription(i18n.t("badge.enrollFailed")).setColor("DarkRed")],
+                                ephemeral: true,
+                            });
 
                         case "start":
 
@@ -323,7 +324,10 @@ export default class BadgeCommand extends SlashCommand {
                                     ephemeral: true,
                                 });
                             }
+                            const method = user?.selectedQuest?.solveMethod; // The solve method for the quest each method has a required time in seconds
+                            // get the child process with the lowest usage
                             const childProcess = ChildManager.getLowestUsageChild();
+                            // limit for how many quests can be run in a single child process
                             if (childProcess.currentTasks >= questsConfig.questsPerChildProcess && !isVip) {
                                 return i.reply({
                                     embeds: [
@@ -336,13 +340,55 @@ export default class BadgeCommand extends SlashCommand {
                                     ],
                                     ephemeral: true,
                                 });
-                            }
+                            };
+
+                            // calculate remaining time for the method 
+                            const remaining = (method?.target ?? 0) - (method?.current ?? 0);
+                            const isDuration = method?.type === "duration";
+                            const timeString = isDuration && remaining > 0
+                                ? `${remaining + 60}s`   // duration case
+                                : `15m`;                 // fallback case
+                            console.log(`Setting collector time to ${timeString} for method type ${method?.type} with remaining ${remaining}`);
+                            // clientMs is a utility function to convert time string to milliseconds (same as ms package)
+                            collector.resetTimer({
+                                time: client.clientMs(timeString),
+                                idle: client.clientMs(timeString),
+                            });
+
+                            // debug logs to check the time settings
+                            console.log(
+
+                                client.clientMs(collector.options.time),
+                                client.clientMs(collector.options.idle),
+                            )
+
+
+
+
+
+                            // ignore this 
 
                             user.setProcess(childProcess.process);
                             childProcess.currentTasks++;
                             await user.start();
                             this.logAndUpdate(user, msg, i18n.t("badge.started"));
                             this.registerChildHandlers(user, member, msg, i18n, collector);
+                            return i.update({ ...user.genreate_message() });
+                          
+                        case "refresh":
+                            if (!(await this.tryFetchQuests(user, msg, i18n))) return;
+                            return i.update({ ...user.genreate_message() });
+                      
+
+                        case "stop":
+                            if (user.stoped) {
+                                return i.reply({
+                                    embeds: [new EmbedBuilder().setDescription(i18n.t("badge.alreadyStoped")).setColor("DarkRed")],
+                                    ephemeral: true,
+                                });
+                            }
+                            user.stop();
+                            collector.stop();
                             return i.update({ ...user.genreate_message() });
                     }
                 }
@@ -357,8 +403,17 @@ export default class BadgeCommand extends SlashCommand {
 
         collector.on("end", async () => {
             await delay(1000);
-            const message = user.genreate_message()
-            await msg.edit({ message, components: disableComponents(msg.components) }).catch(() => null);
+            await msg.edit({ components: disableComponents(msg.components) }).catch(() => null);
+            if (!user.destroyed) {
+                user.destroy();
+            }
+            user = null;
+            console.log({
+                endReason: collector.endReason,
+
+            })
+
+
 
         });
     }

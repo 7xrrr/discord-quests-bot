@@ -7,6 +7,8 @@ import { ChildManager } from "../../core/ChildManager.js";
 import { EmbedBuilder } from "../../lib/handler/embedBuilder.js";
 import numeral from 'numeral';
 import pidusage from 'pidusage';
+import { usersCache } from "../../core/cache.js";
+
 export default class setLang extends SlashCommand {
     public name: string = "usage";
     public description: string = "Show the bot's process usage";
@@ -36,6 +38,9 @@ export default class setLang extends SlashCommand {
         const totalRam = ram.reduce((acc, curr) => acc + curr.memory, 0);
         const totalCpu = ram.reduce((acc, curr) => acc + curr.cpu, 0);
         let text = ``
+        const usersCacheSize = usersCache.size;
+        const questsCacheSize = usersCache.reduce((acc, curr) => acc + curr.quests.size, 0);
+        text += `- **Total Users Cache:** \`${usersCacheSize}\`\n- **Total Quests Cache:** \`${questsCacheSize}\`\n`
         text += `- **${i18n.t("usage.totalRam")}:** \`${totalRam.toFixed(2)} MB\`\n- **${i18n.t("usage.totalCpu")}**: \`${totalCpu.toFixed(2)}%\`\n- **${i18n.t("usage.currentSolvers")}:** \`${ChildManager.TotalUsage}\`\n`;
         text += `- **${i18n.t("usage.childProcess")}**: \`${ram.length - 1}\`\n`
         text += `# **${i18n.t("usage.processUsage")}**:\n\n`
