@@ -1,21 +1,31 @@
 import { SupportedDatabaseTypes } from "../core/databaseConfig.js";
 import { config as dotenvConfig } from "dotenv";
 import { Config } from "../interface/config.js";
+
 dotenvConfig();
 
-
 export default {
-    token: process.env.Token,
+    // Discord Bot Token
+    token: process.env.TOKEN || "",
+
+    // شكل الإيمبد
     embedColor: "#06c2fb",
-    defaultLanguage: "en",
+
+    // اللغة الافتراضية
+    defaultLanguage: process.env.LANG || "en",
+
+    // وضع الديبق
     debugMode: true,
-  //  allowedServers: ["1158846168957210635", "1399471603003428966"], // Example server IDs
-    prefix: "!",
-    developers: ["527826654660132890"],
+
+    // البرفكس
+    prefix: process.env.PREFIX || "!",
+
+    // المطورين
+    developers: ["1408893736192180268"],
+
+    // قاعدة البيانات
     database: {
         type: SupportedDatabaseTypes.MongoDB,
-        url: "mongodb://localhost:27017/badge2",
+        url: process.env.MONGO_URI || "mongodb://mongo:AkofLnGOYNkivehfGXEaDsNsXEvHXiAv@mongodb.railway.internal:27017",
     },
-
-
-} as Config
+} as Config;
